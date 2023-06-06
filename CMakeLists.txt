@@ -9,6 +9,7 @@ project(sick_safevisionary_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -100,6 +101,7 @@ catkin_package(
   #LIBRARIES sick_safevisionary_ros
   CATKIN_DEPENDS
     roscpp
+    sensor_msgs
 #  DEPENDS system_lib
 )
 

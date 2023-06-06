@@ -19,6 +19,7 @@
 #include "sick_safevisionary_base/SafeVisionaryDataStream.h"
 #include <thread>
 
+#include <sensor_msgs/CameraInfo.h>
 
 class SickSafeVisionaryROS
 {
@@ -28,7 +29,11 @@ public:
 private:
   bool run();
   bool udpClientThread();
-  
+  void processUDPPacket();
+
+  // TODO createPointcloud
+  void publishCameraInfo();
+  // TODO createDepthImage
 
   std::shared_ptr<visionary::SafeVisionaryData> m_data_handle;
   std::shared_ptr<visionary::SafeVisionaryDataStream> m_data_stream;
@@ -45,12 +50,8 @@ private:
   std::string m_ip;
   int32_t m_udp_port;
   //TODO add tcp param
- 
   std::unique_ptr<std::thread> m_udp_client_thread_ptr;
   bool m_udp_running;
-  
-
-
 
 };
 
