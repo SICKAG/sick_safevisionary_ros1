@@ -24,4 +24,33 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
     ROS_INFO_STREAM("Could not open udp connection");
     return;
   }
+  run();
+}
+
+bool SickSafeVisionaryROS::run()
+{
+  m_udp_client_thread_ptr =
+    std::make_unique<std::thread>(&SickSafeVisionaryROS::udpClientThread, this);
+}
+
+bool SickSafeVisionaryROS::udpClientThread()
+{
+  while (m_udp_running)
+  {
+    // If a n ew valid frame is fully received
+    if (m_data_stream->getNextBlobUdp())
+    {
+      std::cout << "Publishing new frame" << std::endl;
+      std::cout << m_data_handle->getCameraParameters().k1 << std::endl;
+      std::cout << m_data_handle->getCameraParameters().k2 << std::endl;
+      std::cout << m_data_handle->getCameraParameters().p1 << std::endl;
+      std::cout << m_data_handle->getCameraParameters().p2 << std::endl;
+      std::cout << m_data_handle->getCameraParameters().k3 << std::endl;
+      std::cout << "" << std::endl; 
+      std::cout << m_data_handle->getCameraParameters().fx << std::endl;
+      std::cout << m_data_handle->getCameraParameters().fy << std::endl;
+      std::cout << m_data_handle->getCameraParameters().cx << std::endl;
+      std::cout << m_data_handle->getCameraParameters().cy << std::endl;
+    }
+  }
 }
