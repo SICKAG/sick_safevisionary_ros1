@@ -52,6 +52,7 @@
 
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
+  <depend>sick_safevisionary_base</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
