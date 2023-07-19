@@ -13,12 +13,13 @@
 //----------------------------------------------------------------------
 
 #include "sensor_msgs/CameraInfo.h"
-#include <ros/ros.h>
 #include <sick_safevisionary_ros/SickSafeVisionaryROS.h>
 
-SickSafeVisionaryROS::SickSafeVisionaryROS() :
-  m_priv_nh("~/")
+SickSafeVisionaryROS::SickSafeVisionaryROS()
+  : m_priv_nh("~/")
 {
+  m_udp_running     = true;
+
   m_data_handle = std::make_shared<visionary::SafeVisionaryData>();
   m_data_stream = std::make_shared<visionary::SafeVisionaryDataStream>(m_data_handle);
 
@@ -31,29 +32,34 @@ SickSafeVisionaryROS::SickSafeVisionaryROS() :
     ROS_INFO_STREAM("Could not open udp connection");
     return;
   }
-  run();
 }
 
-bool SickSafeVisionaryROS::run()
+void SickSafeVisionaryROS::run()
 {
+  // check if tcp or udp
   m_udp_client_thread_ptr =
     std::make_unique<std::thread>(&SickSafeVisionaryROS::udpClientThread, this);
 }
 
-bool SickSafeVisionaryROS::udpClientThread()
+void SickSafeVisionaryROS::stop()
+{
+  m_udp_client_thread_ptr->join();
+}
+
+void SickSafeVisionaryROS::udpClientThread()
 {
   while (m_udp_running)
   {
-    // If a n ew valid frame is fully received
     if (m_data_stream->getNextBlobUdp())
     {
-      processUDPPacket();
+      processFrame();
     }
   }
 }
 
-void SickSafeVisionaryROS::processUDPPacket()
+void SickSafeVisionaryROS::processFrame()
 {
+  // TODO add header
   publishCameraInfo();
 }
 

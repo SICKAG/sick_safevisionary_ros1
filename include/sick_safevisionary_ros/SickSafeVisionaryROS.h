@@ -26,10 +26,12 @@ class SickSafeVisionaryROS
 public:
   SickSafeVisionaryROS();
   virtual ~SickSafeVisionaryROS(){};
+  void run();
+  void stop();
+
 private:
-  bool run();
-  bool udpClientThread();
-  void processUDPPacket();
+  void udpClientThread();
+  void processFrame();
 
   // TODO createPointcloud
   void publishCameraInfo();
