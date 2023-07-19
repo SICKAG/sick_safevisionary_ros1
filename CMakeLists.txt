@@ -18,6 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   image_transport
   cv_bridge
+  pcl_ros
+  pcl_conversions
 )
 
 ## System dependencies are found with CMake's conventions
@@ -112,6 +114,8 @@ catkin_package(
     sensor_msgs
     image_transport
     cv_bridge
+    pcl_ros
+    pcl_conversions
 #  DEPENDS system_lib
 )
 

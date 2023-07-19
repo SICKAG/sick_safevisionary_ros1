@@ -18,6 +18,7 @@
 #include "image_transport/publisher.h"
 #include "sick_safevisionary_base/SafeVisionaryData.h"
 #include "sick_safevisionary_base/SafeVisionaryDataStream.h"
+#include "sick_safevisionary_base/PointXYZ.h"
 #include <thread>
 
 #include <opencv2/opencv.hpp>
@@ -25,6 +26,9 @@
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/CameraInfo.h>
 
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl_ros/point_cloud.h>
+#include "sensor_msgs/PointCloud2.h"
 #include <ros/ros.h>
 
 class SickSafeVisionaryROS
@@ -39,9 +43,8 @@ private:
   void udpClientThread();
   void processFrame();
 
-  // TODO createPointcloud
   void publishCameraInfo();
-  // TODO createDepthImage
+  void publishPointCloud();
   void publishDepthImage();
   void publishIntensityImage();
   void publishStateMap();
@@ -56,7 +59,6 @@ private:
   ros::Publisher m_camera_info_pub;
   ros::Publisher m_pointcloud_pub;
 
-  // TODO not sure if necessary
   image_transport::Publisher m_depth_pub;
   image_transport::Publisher m_intensity_pub;
   image_transport::Publisher m_state_pub;

@@ -25,6 +25,7 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   m_data_stream = std::make_shared<visionary::SafeVisionaryDataStream>(m_data_handle);
 
   m_camera_info_pub = m_priv_nh.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
+  m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
 
 
   image_transport::ImageTransport image_transport(m_priv_nh);
@@ -66,7 +67,9 @@ void SickSafeVisionaryROS::processFrame()
 {
   // TODO add header
   m_header.stamp = ros::Time::now();
+
   publishCameraInfo();
+  publishPointCloud();
   publishDepthImage();
   publishIntensityImage();
   publishStateMap();
@@ -93,6 +96,60 @@ void SickSafeVisionaryROS::publishCameraInfo()
   camera_info.K[8] = 1;
   // TODO add missing parameter in Projection Matrix
   m_camera_info_pub.publish(camera_info);
+}
+
+void SickSafeVisionaryROS::publishPointCloud()
+{
+  sensor_msgs::PointCloud2::Ptr cloud_msg(new sensor_msgs::PointCloud2);
+  cloud_msg->header       = m_header;
+  cloud_msg->height       = m_data_handle->getHeight();
+  cloud_msg->width        = m_data_handle->getWidth();
+  cloud_msg->is_dense     = false;
+  cloud_msg->is_bigendian = false;
+
+  cloud_msg->fields.resize(4);
+  cloud_msg->fields[0].name = "x";
+  cloud_msg->fields[1].name = "y";
+  cloud_msg->fields[2].name = "z";
+  cloud_msg->fields[3].name = "intensity";
+
+
+  int offset = 0;
+  for (size_t i = 0; i < 3; ++i)
+  {
+    cloud_msg->fields[i].offset   = offset;
+    cloud_msg->fields[i].datatype = int(sensor_msgs::PointField::FLOAT32);
+    cloud_msg->fields[i].count    = 1;
+    offset += sizeof(float);
+  }
+
+  cloud_msg->fields[3].offset   = offset;
+  cloud_msg->fields[3].datatype = int(sensor_msgs::PointField::UINT16);
+  cloud_msg->fields[3].count    = 1;
+  offset += sizeof(uint16_t);
+
+  cloud_msg->point_step = offset;
+  cloud_msg->row_step   = cloud_msg->point_step * cloud_msg->width;
+  cloud_msg->data.resize(cloud_msg->height * cloud_msg->row_step);
+
+  std::vector<visionary::PointXYZ> point_vec;
+  m_data_handle->generatePointCloud(point_vec);
+  m_data_handle->transformPointCloud(point_vec);
+
+  std::vector<uint16_t>::const_iterator intensity_it = m_data_handle->getIntensityMap().begin();
+  std::vector<visionary::PointXYZ>::const_iterator point_it = point_vec.begin();
+  // TODO check if both vector sizes align
+
+  for (size_t i = 0; i < point_vec.size(); ++i, ++intensity_it, ++point_it)
+  {
+    memcpy(&cloud_msg->data[i * cloud_msg->point_step + cloud_msg->fields[0].offset],
+           &*point_it,
+           sizeof(visionary::PointXYZ));
+    memcpy(&cloud_msg->data[i * cloud_msg->point_step + cloud_msg->fields[3].offset],
+           &*intensity_it,
+           sizeof(uint16_t));
+  }
+  m_pointcloud_pub.publish(cloud_msg);
 }
 
 void SickSafeVisionaryROS::publishDepthImage()
