@@ -19,10 +19,8 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
 {
   // TODO fill header correctly
   m_header.frame_id = "camera";
-  m_udp_running     = true;
-
-  m_data_handle = std::make_shared<visionary::SafeVisionaryData>();
-  m_data_stream = std::make_shared<visionary::SafeVisionaryDataStream>(m_data_handle);
+  m_data_handle     = std::make_shared<visionary::SafeVisionaryData>();
+  m_data_stream     = std::make_shared<visionary::SafeVisionaryDataStream>(m_data_handle);
 
   m_camera_info_pub = m_priv_nh.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
   m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
@@ -44,23 +42,43 @@ void SickSafeVisionaryROS::run()
 {
   // check if tcp or udp
   m_udp_client_thread_ptr =
-    std::make_unique<std::thread>(&SickSafeVisionaryROS::udpClientThread, this);
+    std::make_unique<std::thread>(&SickSafeVisionaryROS::receiveThread, this);
 }
 
 void SickSafeVisionaryROS::stop()
 {
   m_udp_client_thread_ptr->join();
+  m_data_stream->closeUdpConnection();
 }
 
-void SickSafeVisionaryROS::udpClientThread()
+void SickSafeVisionaryROS::receiveThread()
 {
-  while (m_udp_running)
+  while (ros::ok())
   {
     if (m_data_stream->getNextBlobUdp())
     {
-      processFrame();
+      if (m_data_mutex.try_lock())
+      {
+        m_data_mutex.unlock();
+        publishThread();
+      }
+      else
+      {
+        ROS_INFO_STREAM("Still publishing old frame, skipping this one");
+      }
+    }
+    else
+    {
+      ROS_INFO_STREAM("Faulty frame, skipping");
     }
   }
+}
+
+void SickSafeVisionaryROS::publishThread()
+{
+  m_data_mutex.lock();
+  processFrame();
+  m_data_mutex.unlock();
 }
 
 void SickSafeVisionaryROS::processFrame()
@@ -68,11 +86,26 @@ void SickSafeVisionaryROS::processFrame()
   // TODO add header
   m_header.stamp = ros::Time::now();
 
-  publishCameraInfo();
-  publishPointCloud();
-  publishDepthImage();
-  publishIntensityImage();
-  publishStateMap();
+  if (m_camera_info_pub.getNumSubscribers() > 0)
+  {
+    publishCameraInfo();
+  }
+  if (m_pointcloud_pub.getNumSubscribers() > 0)
+  {
+    publishPointCloud();
+  }
+  if (m_depth_pub.getNumSubscribers() > 0)
+  {
+    publishDepthImage();
+  }
+  if (m_intensity_pub.getNumSubscribers() > 0)
+  {
+    publishIntensityImage();
+  }
+  if (m_state_pub.getNumSubscribers() > 0)
+  {
+    publishStateMap();
+  }
 }
 
 void SickSafeVisionaryROS::publishCameraInfo()
@@ -171,13 +204,11 @@ sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec16ToImage(std::vector<uint16_t> v
 {
   cv::Mat image = cv::Mat(m_data_handle->getHeight(), m_data_handle->getWidth(), CV_16UC1);
   std::memcpy(image.data, vec.data(), vec.size() * sizeof(uint16_t));
-  return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_16UC1, image)
-    .toImageMsg();
+  return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_16UC1, image).toImageMsg();
 }
 sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec8ToImage(std::vector<uint8_t> vec)
 {
   cv::Mat image = cv::Mat(m_data_handle->getHeight(), m_data_handle->getWidth(), CV_8UC1);
   std::memcpy(image.data, vec.data(), vec.size() * sizeof(uint8_t));
-  return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_8UC1, image)
-    .toImageMsg();
+  return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_8UC1, image).toImageMsg();
 }

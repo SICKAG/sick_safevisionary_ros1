@@ -40,7 +40,8 @@ public:
   void stop();
 
 private:
-  void udpClientThread();
+  void receiveThread();
+  void publishThread();
   void processFrame();
 
   void publishCameraInfo();
@@ -74,7 +75,7 @@ private:
   int32_t m_udp_port;
   // TODO add tcp param
   std::unique_ptr<std::thread> m_udp_client_thread_ptr;
-  bool m_udp_running;
+  std::mutex m_data_mutex;
 };
 
 #endif /* SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED */
