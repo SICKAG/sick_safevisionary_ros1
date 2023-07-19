@@ -16,6 +16,8 @@ endif()
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
+  image_transport
+  cv_bridge
 )
 
 ## System dependencies are found with CMake's conventions
@@ -108,6 +110,8 @@ catkin_package(
   CATKIN_DEPENDS
     roscpp
     sensor_msgs
+    image_transport
+    cv_bridge
 #  DEPENDS system_lib
 )
 

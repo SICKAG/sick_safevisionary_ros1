@@ -15,11 +15,17 @@
 #ifndef SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED
 #define SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED
 
+#include "image_transport/publisher.h"
 #include "sick_safevisionary_base/SafeVisionaryData.h"
 #include "sick_safevisionary_base/SafeVisionaryDataStream.h"
 #include <thread>
 
+#include <opencv2/opencv.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/CameraInfo.h>
+
+#include <ros/ros.h>
 
 class SickSafeVisionaryROS
 {
@@ -36,6 +42,13 @@ private:
   // TODO createPointcloud
   void publishCameraInfo();
   // TODO createDepthImage
+  void publishDepthImage();
+  void publishIntensityImage();
+  void publishStateMap();
+
+
+  sensor_msgs::ImagePtr Vec16ToImage(std::vector<uint16_t> vec);
+  sensor_msgs::ImagePtr Vec8ToImage(std::vector<uint8_t> vec);
 
   std::shared_ptr<visionary::SafeVisionaryData> m_data_handle;
   std::shared_ptr<visionary::SafeVisionaryDataStream> m_data_stream;
@@ -44,17 +57,22 @@ private:
   ros::Publisher m_pointcloud_pub;
 
   // TODO not sure if necessary
+  image_transport::Publisher m_depth_pub;
+  image_transport::Publisher m_intensity_pub;
+  image_transport::Publisher m_state_pub;
+
+
   ros::NodeHandle m_nh;
   ros::NodeHandle m_priv_nh;
-
+  std_msgs::Header m_header;
   std::string m_frame_id;
+
   std::string m_connection_type;
   std::string m_ip;
   int32_t m_udp_port;
-  //TODO add tcp param
+  // TODO add tcp param
   std::unique_ptr<std::thread> m_udp_client_thread_ptr;
   bool m_udp_running;
-
 };
 
 #endif /* SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED */

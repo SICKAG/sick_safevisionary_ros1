@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
 {
   ros::init(argc, argv, "sick_safevisionary_ros_node");
   SickSafeVisionaryROS safevisionary_ros;
+  safevisionary_ros.run();
   ros::spin();
+  safevisionary_ros.stop();
   return 0;
 }
