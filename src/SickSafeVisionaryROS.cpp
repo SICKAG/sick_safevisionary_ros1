@@ -19,10 +19,12 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   : m_priv_nh("~/")
   , m_data_available(false)
 {
-  // TODO fill header correctly
-  m_header.frame_id = "camera";
-  m_data_handle     = std::make_shared<visionary::SafeVisionaryData>();
-  m_data_stream     = std::make_shared<visionary::SafeVisionaryDataStream>(m_data_handle);
+  m_priv_nh.param<std::string>("frame_id", m_frame_id, "camera");
+  m_header.frame_id = m_frame_id;
+  m_priv_nh.param<int>("udp_port", m_udp_port, 6060);
+
+  m_data_handle = std::make_shared<visionary::SafeVisionaryData>();
+  m_data_stream = std::make_shared<visionary::SafeVisionaryDataStream>(m_data_handle);
 
   m_camera_info_pub = m_priv_nh.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
   m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
@@ -32,7 +34,7 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   m_intensity_pub = image_transport.advertise("intensity", 1);
   m_state_pub     = image_transport.advertise("state", 1);
 
-  if (!m_data_stream->openUdpConnection(htons(6060)))
+  if (!m_data_stream->openUdpConnection(htons((int)m_udp_port)))
   {
     ROS_INFO_STREAM("Could not open udp connection");
     return;
@@ -96,7 +98,6 @@ void SickSafeVisionaryROS::publishThread()
 
 void SickSafeVisionaryROS::processFrame()
 {
-  // TODO add header
   m_header.stamp = ros::Time::now();
 
   if (m_camera_info_pub.getNumSubscribers() > 0)

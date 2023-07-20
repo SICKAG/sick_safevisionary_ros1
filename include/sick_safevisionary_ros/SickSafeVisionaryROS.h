@@ -70,7 +70,7 @@ private:
 
   std::string m_connection_type;
   std::string m_ip;
-  int32_t m_udp_port;
+  int m_udp_port;
   // TODO add tcp param
   std::unique_ptr<std::thread> m_receive_thread_ptr;
   std::unique_ptr<std::thread> m_publish_thread_ptr;
