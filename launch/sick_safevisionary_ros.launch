@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="sick_safevisionary_ros" type="sick_safevisionary_ros_node" name="sick_safevisionary_ros" output="screen">
+    <!-- UDP port of Measurement Data Stream, default: 6060 -->
+    <param name="udp_port" value="6060" />
+    <param name="frame_id" value="camera" />
+  </node>
+</launch>
