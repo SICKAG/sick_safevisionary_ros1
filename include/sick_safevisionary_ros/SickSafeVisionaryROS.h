@@ -16,15 +16,15 @@
 #define SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED
 
 #include "image_transport/publisher.h"
+#include "sick_safevisionary_base/PointXYZ.h"
 #include "sick_safevisionary_base/SafeVisionaryData.h"
 #include "sick_safevisionary_base/SafeVisionaryDataStream.h"
-#include "sick_safevisionary_base/PointXYZ.h"
 #include <mutex>
 #include <thread>
 
-#include <opencv2/opencv.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
+#include <opencv2/opencv.hpp>
 #include <sensor_msgs/CameraInfo.h>
 
 #include "sensor_msgs/PointCloud2.h"
@@ -49,7 +49,6 @@ private:
   void publishIntensityImage();
   void publishStateMap();
 
-
   sensor_msgs::ImagePtr Vec16ToImage(std::vector<uint16_t> vec);
   sensor_msgs::ImagePtr Vec8ToImage(std::vector<uint8_t> vec);
 
@@ -63,7 +62,6 @@ private:
   image_transport::Publisher m_depth_pub;
   image_transport::Publisher m_intensity_pub;
   image_transport::Publisher m_state_pub;
-
 
   ros::NodeHandle m_nh;
   ros::NodeHandle m_priv_nh;

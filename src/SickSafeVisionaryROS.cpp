@@ -27,7 +27,6 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   m_camera_info_pub = m_priv_nh.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
   m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
 
-
   image_transport::ImageTransport image_transport(m_priv_nh);
   m_depth_pub     = image_transport.advertise("depth", 1);
   m_intensity_pub = image_transport.advertise("intensity", 1);
@@ -159,7 +158,6 @@ void SickSafeVisionaryROS::publishPointCloud()
   cloud_msg->fields[1].name = "y";
   cloud_msg->fields[2].name = "z";
   cloud_msg->fields[3].name = "intensity";
-
 
   int offset = 0;
   for (size_t i = 0; i < 3; ++i)
