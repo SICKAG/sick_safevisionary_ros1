@@ -56,6 +56,7 @@ private:
   sensor_msgs::ImagePtr Vec8ToImage(std::vector<uint8_t> vec);
 
   std::shared_ptr<visionary::SafeVisionaryData> m_data_handle;
+  visionary::SafeVisionaryData m_last_handle;
   std::shared_ptr<visionary::SafeVisionaryDataStream> m_data_stream;
 
   ros::Publisher m_camera_info_pub;
@@ -75,8 +76,10 @@ private:
   std::string m_ip;
   int32_t m_udp_port;
   // TODO add tcp param
-  std::unique_ptr<std::thread> m_udp_client_thread_ptr;
+  std::unique_ptr<std::thread> m_receive_thread_ptr;
+  std::unique_ptr<std::thread> m_publish_thread_ptr;
   std::mutex m_data_mutex;
+  bool m_data_available;
 };
 
 #endif /* SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED */

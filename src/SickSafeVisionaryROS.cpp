@@ -13,9 +13,11 @@
 //----------------------------------------------------------------------
 
 #include <sick_safevisionary_ros/SickSafeVisionaryROS.h>
+#include <thread>
 
 SickSafeVisionaryROS::SickSafeVisionaryROS()
   : m_priv_nh("~/")
+  , m_data_available(false)
 {
   // TODO fill header correctly
   m_header.frame_id = "camera";
@@ -40,14 +42,14 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
 
 void SickSafeVisionaryROS::run()
 {
-  // check if tcp or udp
-  m_udp_client_thread_ptr =
-    std::make_unique<std::thread>(&SickSafeVisionaryROS::receiveThread, this);
+  m_receive_thread_ptr = std::make_unique<std::thread>(&SickSafeVisionaryROS::receiveThread, this);
+  m_publish_thread_ptr = std::make_unique<std::thread>(&SickSafeVisionaryROS::publishThread, this);
 }
 
 void SickSafeVisionaryROS::stop()
 {
-  m_udp_client_thread_ptr->join();
+  m_receive_thread_ptr->join();
+  m_publish_thread_ptr->join();
   m_data_stream->closeUdpConnection();
 }
 
@@ -59,48 +61,38 @@ void SickSafeVisionaryROS::receiveThread()
     {
       if (m_data_stream->getNextBlobUdp())
       {
+        m_data_available = true;
+        m_last_handle    = *m_data_handle;
         m_data_mutex.unlock();
-        std::thread t1(&SickSafeVisionaryROS::publishThread, this );
-        t1.join();
       }
       else
       {
-        ROS_INFO_STREAM("Faulty Frame, skipping");
+        ROS_INFO_STREAM("UDP Stream incomplete, skipping Frame.");
         m_data_mutex.unlock();
         continue;
       }
     }
     else
     {
-      ROS_INFO_STREAM("Still publishing old frame, skipping this one");
+      ROS_INFO_STREAM("Could not acquire mutex lock yet. Skipping Frame.");
     }
-
-
-    // if (m_data_stream->getNextBlobUdp())
-    //// if(m_data_stream->getNe)
-    //{
-    // if (m_data_mutex.try_lock())
-    //{
-    // m_data_mutex.unlock();
-    // publishThread();
-    //}
-    // else
-    //{
-    // ROS_INFO_STREAM("Still publishing old frame, skipping this one");
-    //}
-    //}
-    // else
-    //{
-    // ROS_INFO_STREAM("Faulty frame, skipping");
-    //}
   }
 }
 
 void SickSafeVisionaryROS::publishThread()
 {
-  m_data_mutex.lock();
-  processFrame();
-  m_data_mutex.unlock();
+  while (ros::ok())
+  {
+    if (m_data_available)
+    {
+      processFrame();
+      m_data_available = false;
+    }
+    else
+    {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+    }
+  }
 }
 
 void SickSafeVisionaryROS::processFrame()
@@ -135,19 +127,19 @@ void SickSafeVisionaryROS::publishCameraInfo()
   sensor_msgs::CameraInfo camera_info;
   camera_info.header = m_header;
 
-  camera_info.height = m_data_handle->getHeight();
-  camera_info.width  = m_data_handle->getWidth();
+  camera_info.height = m_last_handle.getHeight();
+  camera_info.width  = m_last_handle.getWidth();
   camera_info.D      = std::vector<double>(5, 0);
-  camera_info.D[0]   = m_data_handle->getCameraParameters().k1;
-  camera_info.D[1]   = m_data_handle->getCameraParameters().k2;
-  camera_info.D[2]   = m_data_handle->getCameraParameters().p1;
-  camera_info.D[3]   = m_data_handle->getCameraParameters().p2;
-  camera_info.D[4]   = m_data_handle->getCameraParameters().k3;
+  camera_info.D[0]   = m_last_handle.getCameraParameters().k1;
+  camera_info.D[1]   = m_last_handle.getCameraParameters().k2;
+  camera_info.D[2]   = m_last_handle.getCameraParameters().p1;
+  camera_info.D[3]   = m_last_handle.getCameraParameters().p2;
+  camera_info.D[4]   = m_last_handle.getCameraParameters().k3;
 
-  camera_info.K[0] = m_data_handle->getCameraParameters().fx;
-  camera_info.K[2] = m_data_handle->getCameraParameters().cx;
-  camera_info.K[4] = m_data_handle->getCameraParameters().fy;
-  camera_info.K[5] = m_data_handle->getCameraParameters().cy;
+  camera_info.K[0] = m_last_handle.getCameraParameters().fx;
+  camera_info.K[2] = m_last_handle.getCameraParameters().cx;
+  camera_info.K[4] = m_last_handle.getCameraParameters().fy;
+  camera_info.K[5] = m_last_handle.getCameraParameters().cy;
   camera_info.K[8] = 1;
   // TODO add missing parameter in Projection Matrix
   m_camera_info_pub.publish(camera_info);
@@ -157,8 +149,8 @@ void SickSafeVisionaryROS::publishPointCloud()
 {
   sensor_msgs::PointCloud2::Ptr cloud_msg(new sensor_msgs::PointCloud2);
   cloud_msg->header       = m_header;
-  cloud_msg->height       = m_data_handle->getHeight();
-  cloud_msg->width        = m_data_handle->getWidth();
+  cloud_msg->height       = m_last_handle.getHeight();
+  cloud_msg->width        = m_last_handle.getWidth();
   cloud_msg->is_dense     = false;
   cloud_msg->is_bigendian = false;
 
@@ -188,10 +180,10 @@ void SickSafeVisionaryROS::publishPointCloud()
   cloud_msg->data.resize(cloud_msg->height * cloud_msg->row_step);
 
   std::vector<visionary::PointXYZ> point_vec;
-  m_data_handle->generatePointCloud(point_vec);
-  m_data_handle->transformPointCloud(point_vec);
+  m_last_handle.generatePointCloud(point_vec);
+  m_last_handle.transformPointCloud(point_vec);
 
-  std::vector<uint16_t>::const_iterator intensity_it = m_data_handle->getIntensityMap().begin();
+  std::vector<uint16_t>::const_iterator intensity_it = m_last_handle.getIntensityMap().begin();
   std::vector<visionary::PointXYZ>::const_iterator point_it = point_vec.begin();
   // TODO check if both vector sizes align
 
@@ -209,28 +201,28 @@ void SickSafeVisionaryROS::publishPointCloud()
 
 void SickSafeVisionaryROS::publishDepthImage()
 {
-  m_depth_pub.publish(Vec16ToImage(m_data_handle->getDistanceMap()));
+  m_depth_pub.publish(Vec16ToImage(m_last_handle.getDistanceMap()));
 }
 
 void SickSafeVisionaryROS::publishIntensityImage()
 {
-  m_intensity_pub.publish(Vec16ToImage(m_data_handle->getIntensityMap()));
+  m_intensity_pub.publish(Vec16ToImage(m_last_handle.getIntensityMap()));
 }
 
 void SickSafeVisionaryROS::publishStateMap()
 {
-  m_state_pub.publish(Vec8ToImage(m_data_handle->getStateMap()));
+  m_state_pub.publish(Vec8ToImage(m_last_handle.getStateMap()));
 }
 
 sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec16ToImage(std::vector<uint16_t> vec)
 {
-  cv::Mat image = cv::Mat(m_data_handle->getHeight(), m_data_handle->getWidth(), CV_16UC1);
+  cv::Mat image = cv::Mat(m_last_handle.getHeight(), m_last_handle.getWidth(), CV_16UC1);
   std::memcpy(image.data, vec.data(), vec.size() * sizeof(uint16_t));
   return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_16UC1, image).toImageMsg();
 }
 sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec8ToImage(std::vector<uint8_t> vec)
 {
-  cv::Mat image = cv::Mat(m_data_handle->getHeight(), m_data_handle->getWidth(), CV_8UC1);
+  cv::Mat image = cv::Mat(m_last_handle.getHeight(), m_last_handle.getWidth(), CV_8UC1);
   std::memcpy(image.data, vec.data(), vec.size() * sizeof(uint8_t));
   return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_8UC1, image).toImageMsg();
 }
