@@ -19,6 +19,7 @@
 #include "sick_safevisionary_base/SafeVisionaryData.h"
 #include "sick_safevisionary_base/SafeVisionaryDataStream.h"
 #include "sick_safevisionary_base/PointXYZ.h"
+#include <mutex>
 #include <thread>
 
 #include <opencv2/opencv.hpp>

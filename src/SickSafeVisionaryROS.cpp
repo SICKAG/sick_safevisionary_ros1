@@ -55,22 +55,44 @@ void SickSafeVisionaryROS::receiveThread()
 {
   while (ros::ok())
   {
-    if (m_data_stream->getNextBlobUdp())
+    if (m_data_mutex.try_lock())
     {
-      if (m_data_mutex.try_lock())
+      if (m_data_stream->getNextBlobUdp())
       {
         m_data_mutex.unlock();
-        publishThread();
+        std::thread t1(&SickSafeVisionaryROS::publishThread, this );
+        t1.join();
       }
       else
       {
-        ROS_INFO_STREAM("Still publishing old frame, skipping this one");
+        ROS_INFO_STREAM("Faulty Frame, skipping");
+        m_data_mutex.unlock();
+        continue;
       }
     }
     else
     {
-      ROS_INFO_STREAM("Faulty frame, skipping");
+      ROS_INFO_STREAM("Still publishing old frame, skipping this one");
     }
+
+
+    // if (m_data_stream->getNextBlobUdp())
+    //// if(m_data_stream->getNe)
+    //{
+    // if (m_data_mutex.try_lock())
+    //{
+    // m_data_mutex.unlock();
+    // publishThread();
+    //}
+    // else
+    //{
+    // ROS_INFO_STREAM("Still publishing old frame, skipping this one");
+    //}
+    //}
+    // else
+    //{
+    // ROS_INFO_STREAM("Faulty frame, skipping");
+    //}
   }
 }
 
