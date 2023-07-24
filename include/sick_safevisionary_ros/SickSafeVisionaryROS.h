@@ -19,7 +19,8 @@
 #include "sick_safevisionary_base/PointXYZ.h"
 #include "sick_safevisionary_base/SafeVisionaryData.h"
 #include "sick_safevisionary_base/SafeVisionaryDataStream.h"
-#include <mutex>
+#include <boost/lockfree/policies.hpp>
+#include <boost/lockfree/spsc_queue.hpp>
 #include <thread>
 
 #include <cv_bridge/cv_bridge.h>
@@ -30,6 +31,7 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/PointCloud2.h"
 #include <ros/ros.h>
+
 
 class SickSafeVisionaryROS
 {
@@ -77,8 +79,10 @@ private:
   // TODO add tcp param
   std::unique_ptr<std::thread> m_receive_thread_ptr;
   std::unique_ptr<std::thread> m_publish_thread_ptr;
-  std::mutex m_data_mutex;
-  bool m_data_available;
+  std::atomic<bool> m_data_available;
+
+  boost::lockfree::spsc_queue<visionary::SafeVisionaryData, boost::lockfree::capacity<10> >
+    m_spsc_queue;
 };
 
 #endif /* SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED */

@@ -59,24 +59,15 @@ void SickSafeVisionaryROS::receiveThread()
 {
   while (ros::ok())
   {
-    if (m_data_mutex.try_lock())
+    if (m_data_stream->getNextBlobUdp())
     {
-      if (m_data_stream->getNextBlobUdp())
-      {
-        m_data_available = true;
-        m_last_handle    = *m_data_handle;
-        m_data_mutex.unlock();
-      }
-      else
-      {
-        ROS_INFO_STREAM("UDP Stream incomplete, skipping Frame.");
-        m_data_mutex.unlock();
-        continue;
-      }
+      m_data_available = true;
+      m_spsc_queue.push(*m_data_handle);
     }
     else
     {
-      ROS_INFO_STREAM("Could not acquire mutex lock yet. Skipping Frame.");
+      ROS_INFO_STREAM("UDP Stream incomplete, skipping Frame.");
+      continue;
     }
   }
 }
@@ -87,6 +78,7 @@ void SickSafeVisionaryROS::publishThread()
   {
     if (m_data_available)
     {
+      m_spsc_queue.pop(m_last_handle);
       processFrame();
       m_data_available = false;
     }

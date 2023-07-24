@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(sick_safevisionary_base REQUIRED)
+find_package(Boost REQUIRED)
 
 ################################################
 ## Declare ROS messages, services and actions ##
