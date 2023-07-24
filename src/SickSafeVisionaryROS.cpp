@@ -61,8 +61,8 @@ void SickSafeVisionaryROS::receiveThread()
   {
     if (m_data_stream->getNextBlobUdp())
     {
-      m_data_available = true;
       m_spsc_queue.push(*m_data_handle);
+      m_data_available = true;
     }
     else
     {
