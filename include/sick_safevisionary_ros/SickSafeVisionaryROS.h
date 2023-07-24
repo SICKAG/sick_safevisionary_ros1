@@ -27,6 +27,7 @@
 #include <opencv2/opencv.hpp>
 #include <sensor_msgs/CameraInfo.h>
 
+#include "sensor_msgs/Imu.h"
 #include "sensor_msgs/PointCloud2.h"
 #include <ros/ros.h>
 
@@ -48,6 +49,7 @@ private:
   void publishDepthImage();
   void publishIntensityImage();
   void publishStateMap();
+  void publishIMUData();
 
   sensor_msgs::ImagePtr Vec16ToImage(std::vector<uint16_t> vec);
   sensor_msgs::ImagePtr Vec8ToImage(std::vector<uint8_t> vec);
@@ -58,6 +60,7 @@ private:
 
   ros::Publisher m_camera_info_pub;
   ros::Publisher m_pointcloud_pub;
+  ros::Publisher m_imu_pub;
 
   image_transport::Publisher m_depth_pub;
   image_transport::Publisher m_intensity_pub;

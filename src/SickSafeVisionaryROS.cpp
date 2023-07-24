@@ -28,6 +28,7 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
 
   m_camera_info_pub = m_priv_nh.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
   m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
+  m_imu_pub         = m_priv_nh.advertise<sensor_msgs::Imu>("imu_data", 1);
 
   image_transport::ImageTransport image_transport(m_priv_nh);
   m_depth_pub     = image_transport.advertise("depth", 1);
@@ -120,6 +121,10 @@ void SickSafeVisionaryROS::processFrame()
   {
     publishStateMap();
   }
+  if (m_imu_pub.getNumSubscribers() > 0)
+  {
+    publishIMUData();
+  }
 }
 
 void SickSafeVisionaryROS::publishCameraInfo()
@@ -196,6 +201,23 @@ void SickSafeVisionaryROS::publishPointCloud()
            sizeof(uint16_t));
   }
   m_pointcloud_pub.publish(cloud_msg);
+}
+
+void SickSafeVisionaryROS::publishIMUData()
+{
+  sensor_msgs::Imu imu_msg;
+  imu_msg.header                = m_header;
+  imu_msg.angular_velocity.x    = m_last_handle.getIMUData().angularVelocity.X;
+  imu_msg.angular_velocity.y    = m_last_handle.getIMUData().angularVelocity.Y;
+  imu_msg.angular_velocity.z    = m_last_handle.getIMUData().angularVelocity.Z;
+  imu_msg.linear_acceleration.x = m_last_handle.getIMUData().acceleration.X;
+  imu_msg.linear_acceleration.y = m_last_handle.getIMUData().acceleration.Y;
+  imu_msg.linear_acceleration.z = m_last_handle.getIMUData().acceleration.Z;
+  imu_msg.orientation.x         = m_last_handle.getIMUData().orientation.X;
+  imu_msg.orientation.y         = m_last_handle.getIMUData().orientation.Y;
+  imu_msg.orientation.z         = m_last_handle.getIMUData().orientation.Z;
+  imu_msg.orientation.w         = m_last_handle.getIMUData().orientation.W;
+  m_imu_pub.publish(imu_msg);
 }
 
 void SickSafeVisionaryROS::publishDepthImage()
