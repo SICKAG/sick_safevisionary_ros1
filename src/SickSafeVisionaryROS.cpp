@@ -66,7 +66,7 @@ void SickSafeVisionaryROS::receiveThread()
     }
     else
     {
-      ROS_INFO_STREAM("UDP Stream incomplete, skipping Frame.");
+      ROS_DEBUG_STREAM("UDP stream was incomplete. Skipping frame and waiting for new data.");
       continue;
     }
   }
