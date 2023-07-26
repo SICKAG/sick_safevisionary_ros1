@@ -47,11 +47,25 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  DeviceStatus.msg
+  DeviceStatusDataActiveMonitoringCase.msg
+  DeviceStatusDataGeneralStatus.msg
+  DeviceStatusElement.msg
+  FieldInformationData.msg
+  FieldInformationElement.msg
+  LocalIOsElement.msg
+  LocalIOsOSSDSState.msg
+  LocalIOsUniversalIOConfigured.msg
+  LocalIOsUniversalIODirection.msg
+  LocalIOsUniversalIOInputValues.msg
+  LocalIOsUniversalIOOutputValues.msg
+  ROIData.msg
+  ROIDataResult.msg
+  ROIDataSafetyData.msg
+  ROIElement.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(

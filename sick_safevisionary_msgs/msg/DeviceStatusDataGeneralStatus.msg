@@ -1,0 +1,11 @@
+uint8 run_mode_active
+uint8 device_error
+uint8 application_error
+uint8 sleep_mode
+uint8 wait_for_input
+uint8 wait_for_cluster
+uint8 contamination_warning
+uint8 contamination_error
+uint8 dead_zone_detection
+uint8 temperature_warning
+
