@@ -1,3 +1,4 @@
+# ROS msg definition for internal DEVICESTATUS_DATA_GENERALSTATUS struct
 uint8 run_mode_active
 uint8 device_error
 uint8 application_error

@@ -1,4 +1,0 @@
-uint8 id
-ROIDataResult result
-ROIDataSafetyData safety_data
-uint16 distance_value

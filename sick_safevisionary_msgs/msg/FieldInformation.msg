@@ -1,3 +1,4 @@
+# ROS msg definition for internal  FIELDINFORMATION_ELEMENT struct
 uint8 field_id
 uint8 field_set_id
 uint8 field_result

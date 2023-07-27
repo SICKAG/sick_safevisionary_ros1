@@ -1,3 +1,4 @@
+# ROS msg definition for internal  ROI_DATA_SAFETY_DATA struct
 uint8 invalid_due_to_invalid_pixels
 uint8 invalid_due_to_variance
 uint8 invalid_due_to_overexposure

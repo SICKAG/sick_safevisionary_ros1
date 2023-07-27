@@ -1,3 +1,4 @@
+# ROS msg definition for internal  DEVICESTATUS_DATA_ACTIVE_MONITORING_CASE struct
 uint8 monitoring_case_1
 uint8 monitoring_case_2
 uint8 monitoring_case_3

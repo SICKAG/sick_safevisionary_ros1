@@ -49,22 +49,21 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
+  ActiveMonitoringCase.msg
+  CameraIOs.msg
   DeviceStatus.msg
-  DeviceStatusDataActiveMonitoringCase.msg
-  DeviceStatusDataGeneralStatus.msg
-  DeviceStatusElement.msg
-  FieldInformationData.msg
-  FieldInformationElement.msg
-  LocalIOsElement.msg
-  LocalIOsOSSDSState.msg
-  LocalIOsUniversalIOConfigured.msg
-  LocalIOsUniversalIODirection.msg
-  LocalIOsUniversalIOInputValues.msg
-  LocalIOsUniversalIOOutputValues.msg
-  ROIData.msg
-  ROIDataResult.msg
-  ROIDataSafetyData.msg
-  ROIElement.msg
+  FieldInformation.msg
+  FieldInformationArray.msg
+  GeneralStatus.msg
+  IOsConfigured.msg
+  IOsDirection.msg
+  IOsInputValues.msg
+  IOsOSSDSState.msg
+  IOsOutputValues.msg
+  ROI.msg
+  ROIArray.msg
+  ROIObservationResultData.msg
+  ROIObservationSafetyData.msg
 )
 
 ## Generate services in the 'srv' folder
