@@ -12,6 +12,7 @@
  */
 //----------------------------------------------------------------------
 
+#include <sick_safevisionary_msgs/DeviceStatus.h>
 #include <sick_safevisionary_ros/SickSafeVisionaryROS.h>
 #include <thread>
 
@@ -29,6 +30,8 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   m_camera_info_pub = m_priv_nh.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
   m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
   m_imu_pub         = m_priv_nh.advertise<sensor_msgs::Imu>("imu_data", 1);
+  m_device_status_pub =
+    m_priv_nh.advertise<sick_safevisionary_msgs::DeviceStatus>("device_status", 1);
 
   image_transport::ImageTransport image_transport(m_priv_nh);
   m_depth_pub     = image_transport.advertise("depth", 1);
@@ -116,6 +119,10 @@ void SickSafeVisionaryROS::processFrame()
   if (m_imu_pub.getNumSubscribers() > 0)
   {
     publishIMUData();
+  }
+  if (m_device_status_pub.getNumSubscribers() > 0)
+  {
+    publishDeviceStatus();
   }
 }
 
@@ -238,4 +245,43 @@ sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec8ToImage(std::vector<uint8_t> vec
   cv::Mat image = cv::Mat(m_last_handle.getHeight(), m_last_handle.getWidth(), CV_8UC1);
   std::memcpy(image.data, vec.data(), vec.size() * sizeof(uint8_t));
   return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_8UC1, image).toImageMsg();
+}
+
+
+void SickSafeVisionaryROS::publishDeviceStatus()
+{
+  sick_safevisionary_msgs::DeviceStatus status;
+  status.status = static_cast<uint8_t>(m_last_handle.getDeviceStatus());
+  status.status_data.general_status.application_error =
+    m_last_handle.getDeviceStatusData().generalStatus.applicationError;
+  status.status_data.general_status.contamination_error =
+    m_last_handle.getDeviceStatusData().generalStatus.contaminationError;
+  status.status_data.general_status.contamination_warning =
+    m_last_handle.getDeviceStatusData().generalStatus.contaminationWarning;
+  status.status_data.general_status.dead_zone_detection =
+    m_last_handle.getDeviceStatusData().generalStatus.deadZoneDetection;
+  status.status_data.general_status.device_error =
+    m_last_handle.getDeviceStatusData().generalStatus.deviceError;
+  status.status_data.general_status.temperature_warning =
+    m_last_handle.getDeviceStatusData().generalStatus.temperatureWarning;
+  status.status_data.general_status.run_mode_active =
+    m_last_handle.getDeviceStatusData().generalStatus.runModeActive;
+  status.status_data.general_status.wait_for_cluster =
+    m_last_handle.getDeviceStatusData().generalStatus.waitForCluster;
+  status.status_data.general_status.wait_for_input =
+    m_last_handle.getDeviceStatusData().generalStatus.waitForInput;
+  status.status_data.COP_non_safety_related =
+    m_last_handle.getDeviceStatusData().COPNonSaftyRelated;
+  status.status_data.COP_safety_related = m_last_handle.getDeviceStatusData().COPSaftyRelated;
+  status.status_data.COP_reset_required = m_last_handle.getDeviceStatusData().COPResetRequired;
+  status.status_data.active_monitoring_case.monitoring_case_1 =
+    m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase1;
+  status.status_data.active_monitoring_case.monitoring_case_2 =
+    m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase2;
+  status.status_data.active_monitoring_case.monitoring_case_3 =
+    m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase3;
+  status.status_data.active_monitoring_case.monitoring_case_4 =
+    m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase4;
+  status.status_data.contamination_level = m_last_handle.getDeviceStatusData().contaminationLevel;
+  m_device_status_pub.publish(status);
 }
