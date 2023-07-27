@@ -34,7 +34,8 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
   m_imu_pub         = m_priv_nh.advertise<sensor_msgs::Imu>("imu_data", 1);
   m_io_pub          = m_priv_nh.advertise<sick_safevisionary_msgs::CameraIOs>("camera_io", 1);
-  m_roi_pub = m_priv_nh.advertise<sick_safevisionary_msgs::ROIArray>("region_of_interest", 1);
+  m_roi_pub   = m_priv_nh.advertise<sick_safevisionary_msgs::ROIArray>("region_of_interest", 1);
+  m_field_pub = m_priv_nh.advertise<sick_safevisionary_msgs::FieldInformationArray>("fields", 1);
   m_device_status_pub =
     m_priv_nh.advertise<sick_safevisionary_msgs::DeviceStatus>("device_status", 1);
 
@@ -133,9 +134,13 @@ void SickSafeVisionaryROS::processFrame()
   {
     publishIOs();
   }
-  if(m_roi_pub.getNumSubscribers() > 0)
+  if (m_roi_pub.getNumSubscribers() > 0)
   {
     publishROI();
+  }
+  if (m_field_pub.getNumSubscribers() > 0)
+  {
+    publishFieldInformation();
   }
 }
 
@@ -379,4 +384,20 @@ void SickSafeVisionaryROS::publishROI()
     roi_array_msg.rois.push_back(roi_msg);
   }
   m_roi_pub.publish(roi_array_msg);
+}
+
+void SickSafeVisionaryROS::publishFieldInformation()
+{
+  sick_safevisionary_msgs::FieldInformationArray field_array_msg;
+  for (auto& field : m_last_handle.getFieldInformationData().fieldInformation)
+  {
+    sick_safevisionary_msgs::FieldInformation field_msg;
+    field_msg.field_id     = field.fieldID;
+    field_msg.field_set_id = field.fieldSetID;
+    field_msg.field_active = field.fieldActive;
+    field_msg.field_result = field.fieldResult;
+    field_msg.eval_method  = field.evalMethod;
+    field_array_msg.fields.push_back(field_msg);
+  }
+  m_field_pub.publish(field_array_msg);
 }
