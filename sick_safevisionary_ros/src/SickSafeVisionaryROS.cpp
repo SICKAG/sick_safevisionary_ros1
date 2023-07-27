@@ -252,36 +252,35 @@ void SickSafeVisionaryROS::publishDeviceStatus()
 {
   sick_safevisionary_msgs::DeviceStatus status;
   status.status = static_cast<uint8_t>(m_last_handle.getDeviceStatus());
-  status.status_data.general_status.application_error =
+  status.general_status.application_error =
     m_last_handle.getDeviceStatusData().generalStatus.applicationError;
-  status.status_data.general_status.contamination_error =
+  status.general_status.contamination_error =
     m_last_handle.getDeviceStatusData().generalStatus.contaminationError;
-  status.status_data.general_status.contamination_warning =
+  status.general_status.contamination_warning =
     m_last_handle.getDeviceStatusData().generalStatus.contaminationWarning;
-  status.status_data.general_status.dead_zone_detection =
+  status.general_status.dead_zone_detection =
     m_last_handle.getDeviceStatusData().generalStatus.deadZoneDetection;
-  status.status_data.general_status.device_error =
+  status.general_status.device_error =
     m_last_handle.getDeviceStatusData().generalStatus.deviceError;
-  status.status_data.general_status.temperature_warning =
+  status.general_status.temperature_warning =
     m_last_handle.getDeviceStatusData().generalStatus.temperatureWarning;
-  status.status_data.general_status.run_mode_active =
+  status.general_status.run_mode_active =
     m_last_handle.getDeviceStatusData().generalStatus.runModeActive;
-  status.status_data.general_status.wait_for_cluster =
+  status.general_status.wait_for_cluster =
     m_last_handle.getDeviceStatusData().generalStatus.waitForCluster;
-  status.status_data.general_status.wait_for_input =
+  status.general_status.wait_for_input =
     m_last_handle.getDeviceStatusData().generalStatus.waitForInput;
-  status.status_data.COP_non_safety_related =
-    m_last_handle.getDeviceStatusData().COPNonSaftyRelated;
-  status.status_data.COP_safety_related = m_last_handle.getDeviceStatusData().COPSaftyRelated;
-  status.status_data.COP_reset_required = m_last_handle.getDeviceStatusData().COPResetRequired;
-  status.status_data.active_monitoring_case.monitoring_case_1 =
+  status.COP_non_safety_related = m_last_handle.getDeviceStatusData().COPNonSaftyRelated;
+  status.COP_safety_related     = m_last_handle.getDeviceStatusData().COPSaftyRelated;
+  status.COP_reset_required     = m_last_handle.getDeviceStatusData().COPResetRequired;
+  status.active_monitoring_case.monitoring_case_1 =
     m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase1;
-  status.status_data.active_monitoring_case.monitoring_case_2 =
+  status.active_monitoring_case.monitoring_case_2 =
     m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase2;
-  status.status_data.active_monitoring_case.monitoring_case_3 =
+  status.active_monitoring_case.monitoring_case_3 =
     m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase3;
-  status.status_data.active_monitoring_case.monitoring_case_4 =
+  status.active_monitoring_case.monitoring_case_4 =
     m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase4;
-  status.status_data.contamination_level = m_last_handle.getDeviceStatusData().contaminationLevel;
+  status.contamination_level = m_last_handle.getDeviceStatusData().contaminationLevel;
   m_device_status_pub.publish(status);
 }
