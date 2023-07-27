@@ -21,6 +21,7 @@
 #include "sick_safevisionary_base/SafeVisionaryDataStream.h"
 #include "sick_safevisionary_msgs/CameraIOs.h"
 #include "sick_safevisionary_msgs/DeviceStatus.h"
+#include "sick_safevisionary_msgs/ROIArray.h"
 #include <boost/lockfree/policies.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 #include <thread>
@@ -56,6 +57,7 @@ private:
   void publishIMUData();
   void publishDeviceStatus();
   void publishIOs();
+  void publishROI();
 
   sensor_msgs::ImagePtr Vec16ToImage(std::vector<uint16_t> vec);
   sensor_msgs::ImagePtr Vec8ToImage(std::vector<uint8_t> vec);
@@ -69,6 +71,7 @@ private:
   ros::Publisher m_imu_pub;
   ros::Publisher m_device_status_pub;
   ros::Publisher m_io_pub;
+  ros::Publisher m_roi_pub;
 
   image_transport::Publisher m_depth_pub;
   image_transport::Publisher m_intensity_pub;
