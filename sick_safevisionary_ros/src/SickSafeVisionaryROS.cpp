@@ -12,6 +12,7 @@
  */
 //----------------------------------------------------------------------
 
+#include <sick_safevisionary_msgs/CameraIOs.h>
 #include <sick_safevisionary_msgs/DeviceStatus.h>
 #include <sick_safevisionary_ros/SickSafeVisionaryROS.h>
 #include <thread>
@@ -30,6 +31,7 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   m_camera_info_pub = m_priv_nh.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
   m_pointcloud_pub  = m_priv_nh.advertise<sensor_msgs::PointCloud2>("points", 1);
   m_imu_pub         = m_priv_nh.advertise<sensor_msgs::Imu>("imu_data", 1);
+  m_io_pub          = m_priv_nh.advertise<sick_safevisionary_msgs::CameraIOs>("camera_io", 1);
   m_device_status_pub =
     m_priv_nh.advertise<sick_safevisionary_msgs::DeviceStatus>("device_status", 1);
 
@@ -123,6 +125,10 @@ void SickSafeVisionaryROS::processFrame()
   if (m_device_status_pub.getNumSubscribers() > 0)
   {
     publishDeviceStatus();
+  }
+  if (m_io_pub.getNumSubscribers() > 0)
+  {
+    publishIOs();
   }
 }
 
@@ -283,4 +289,52 @@ void SickSafeVisionaryROS::publishDeviceStatus()
     m_last_handle.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase4;
   status.contamination_level = m_last_handle.getDeviceStatusData().contaminationLevel;
   m_device_status_pub.publish(status);
+}
+
+void SickSafeVisionaryROS::publishIOs()
+{
+  sick_safevisionary_msgs::CameraIOs camera_ios;
+  camera_ios.configured.pin_5 =
+    m_last_handle.getLocalIOData().universalIOConfigured.configuredUniIOPin5;
+  camera_ios.configured.pin_6 =
+    m_last_handle.getLocalIOData().universalIOConfigured.configuredUniIOPin6;
+  camera_ios.configured.pin_7 =
+    m_last_handle.getLocalIOData().universalIOConfigured.configuredUniIOPin7;
+  camera_ios.configured.pin_8 =
+    m_last_handle.getLocalIOData().universalIOConfigured.configuredUniIOPin8;
+  camera_ios.direction.pin_5 =
+    m_last_handle.getLocalIOData().universalIODirection.directionValueUniIOPin5;
+  camera_ios.direction.pin_6 =
+    m_last_handle.getLocalIOData().universalIODirection.directionValueUniIOPin6;
+  camera_ios.direction.pin_7 =
+    m_last_handle.getLocalIOData().universalIODirection.directionValueUniIOPin7;
+  camera_ios.direction.pin_8 =
+    m_last_handle.getLocalIOData().universalIODirection.directionValueUniIOPin8;
+  camera_ios.input_values.pin_5 =
+    m_last_handle.getLocalIOData().universalIOInputValue.logicalValueUniIOPin5;
+  camera_ios.input_values.pin_6 =
+    m_last_handle.getLocalIOData().universalIOInputValue.logicalValueUniIOPin6;
+  camera_ios.input_values.pin_7 =
+    m_last_handle.getLocalIOData().universalIOInputValue.logicalValueUniIOPin7;
+  camera_ios.input_values.pin_8 =
+    m_last_handle.getLocalIOData().universalIOInputValue.logicalValueUniIOPin8;
+  camera_ios.output_values.pin_5 =
+    m_last_handle.getLocalIOData().universalIOOutputValue.localOutput1Pin5;
+  camera_ios.output_values.pin_6 =
+    m_last_handle.getLocalIOData().universalIOOutputValue.localOutput2Pin6;
+  camera_ios.output_values.pin_7 =
+    m_last_handle.getLocalIOData().universalIOOutputValue.localOutput3Pin7;
+  camera_ios.output_values.pin_8 =
+    m_last_handle.getLocalIOData().universalIOOutputValue.localOutput4Pin8;
+  camera_ios.ossds_state.OSSD1A  = m_last_handle.getLocalIOData().ossdsState.stateOSSD1A;
+  camera_ios.ossds_state.OSSD1B  = m_last_handle.getLocalIOData().ossdsState.stateOSSD1B;
+  camera_ios.ossds_state.OSSD2A  = m_last_handle.getLocalIOData().ossdsState.stateOSSD2A;
+  camera_ios.ossds_state.OSSD2B  = m_last_handle.getLocalIOData().ossdsState.stateOSSD2B;
+  camera_ios.ossds_dyn_count     = m_last_handle.getLocalIOData().ossdsDynCount;
+  camera_ios.ossds_crc           = m_last_handle.getLocalIOData().ossdsCRC;
+  camera_ios.ossds_io_status     = m_last_handle.getLocalIOData().ossdsIOStatus;
+  camera_ios.dynamic_speed_a     = m_last_handle.getLocalIOData().dynamicSpeedA;
+  camera_ios.dynamic_speed_b     = m_last_handle.getLocalIOData().dynamicSpeedB;
+  camera_ios.dynamic_valid_flags = m_last_handle.getLocalIOData().DynamicValidFlags;
+  m_io_pub.publish(camera_ios);
 }
