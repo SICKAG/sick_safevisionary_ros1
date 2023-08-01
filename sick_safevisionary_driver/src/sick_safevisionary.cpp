@@ -16,10 +16,10 @@
 #include <sick_safevisionary_msgs/DeviceStatus.h>
 #include <sick_safevisionary_msgs/ROI.h>
 #include <sick_safevisionary_msgs/ROIArray.h>
-#include <sick_safevisionary_ros/SickSafeVisionaryROS.h>
+#include <sick_safevisionary_driver/sick_safevisionary.h>
 #include <thread>
 
-SickSafeVisionaryROS::SickSafeVisionaryROS()
+SickSafeVisionary::SickSafeVisionary()
   : m_priv_nh("~/")
   , m_data_available(false)
 {
@@ -70,20 +70,20 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   }
 }
 
-void SickSafeVisionaryROS::run()
+void SickSafeVisionary::run()
 {
-  m_receive_thread_ptr = std::make_unique<std::thread>(&SickSafeVisionaryROS::receiveThread, this);
-  m_publish_thread_ptr = std::make_unique<std::thread>(&SickSafeVisionaryROS::publishThread, this);
+  m_receive_thread_ptr = std::make_unique<std::thread>(&SickSafeVisionary::receiveThread, this);
+  m_publish_thread_ptr = std::make_unique<std::thread>(&SickSafeVisionary::publishThread, this);
 }
 
-void SickSafeVisionaryROS::stop()
+void SickSafeVisionary::stop()
 {
   m_receive_thread_ptr->join();
   m_publish_thread_ptr->join();
   m_data_stream->closeUdpConnection();
 }
 
-void SickSafeVisionaryROS::receiveThread()
+void SickSafeVisionary::receiveThread()
 {
   while (ros::ok())
   {
@@ -100,7 +100,7 @@ void SickSafeVisionaryROS::receiveThread()
   }
 }
 
-void SickSafeVisionaryROS::publishThread()
+void SickSafeVisionary::publishThread()
 {
   while (ros::ok())
   {
@@ -117,7 +117,7 @@ void SickSafeVisionaryROS::publishThread()
   }
 }
 
-void SickSafeVisionaryROS::processFrame()
+void SickSafeVisionary::processFrame()
 {
   m_header.stamp = ros::Time::now();
 
@@ -163,7 +163,7 @@ void SickSafeVisionaryROS::processFrame()
   }
 }
 
-void SickSafeVisionaryROS::publishCameraInfo()
+void SickSafeVisionary::publishCameraInfo()
 {
   sensor_msgs::CameraInfo camera_info;
   camera_info.header = m_header;
@@ -186,7 +186,7 @@ void SickSafeVisionaryROS::publishCameraInfo()
   m_camera_info_pub.publish(camera_info);
 }
 
-void SickSafeVisionaryROS::publishPointCloud()
+void SickSafeVisionary::publishPointCloud()
 {
   sensor_msgs::PointCloud2::Ptr cloud_msg(new sensor_msgs::PointCloud2);
   cloud_msg->header       = m_header;
@@ -239,7 +239,7 @@ void SickSafeVisionaryROS::publishPointCloud()
   m_pointcloud_pub.publish(cloud_msg);
 }
 
-void SickSafeVisionaryROS::publishIMUData()
+void SickSafeVisionary::publishIMUData()
 {
   sensor_msgs::Imu imu_msg;
   imu_msg.header                = m_header;
@@ -256,28 +256,28 @@ void SickSafeVisionaryROS::publishIMUData()
   m_imu_pub.publish(imu_msg);
 }
 
-void SickSafeVisionaryROS::publishDepthImage()
+void SickSafeVisionary::publishDepthImage()
 {
   m_depth_pub.publish(Vec16ToImage(m_last_handle.getDistanceMap()));
 }
 
-void SickSafeVisionaryROS::publishIntensityImage()
+void SickSafeVisionary::publishIntensityImage()
 {
   m_intensity_pub.publish(Vec16ToImage(m_last_handle.getIntensityMap()));
 }
 
-void SickSafeVisionaryROS::publishStateMap()
+void SickSafeVisionary::publishStateMap()
 {
   m_state_pub.publish(Vec8ToImage(m_last_handle.getStateMap()));
 }
 
-sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec16ToImage(std::vector<uint16_t> vec)
+sensor_msgs::ImagePtr SickSafeVisionary::Vec16ToImage(std::vector<uint16_t> vec)
 {
   cv::Mat image = cv::Mat(m_last_handle.getHeight(), m_last_handle.getWidth(), CV_16UC1);
   std::memcpy(image.data, vec.data(), vec.size() * sizeof(uint16_t));
   return cv_bridge::CvImage(m_header, sensor_msgs::image_encodings::TYPE_16UC1, image).toImageMsg();
 }
-sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec8ToImage(std::vector<uint8_t> vec)
+sensor_msgs::ImagePtr SickSafeVisionary::Vec8ToImage(std::vector<uint8_t> vec)
 {
   cv::Mat image = cv::Mat(m_last_handle.getHeight(), m_last_handle.getWidth(), CV_8UC1);
   std::memcpy(image.data, vec.data(), vec.size() * sizeof(uint8_t));
@@ -285,7 +285,7 @@ sensor_msgs::ImagePtr SickSafeVisionaryROS::Vec8ToImage(std::vector<uint8_t> vec
 }
 
 
-void SickSafeVisionaryROS::publishDeviceStatus()
+void SickSafeVisionary::publishDeviceStatus()
 {
   sick_safevisionary_msgs::DeviceStatus status;
   status.status = static_cast<uint8_t>(m_last_handle.getDeviceStatus());
@@ -322,7 +322,7 @@ void SickSafeVisionaryROS::publishDeviceStatus()
   m_device_status_pub.publish(status);
 }
 
-void SickSafeVisionaryROS::publishIOs()
+void SickSafeVisionary::publishIOs()
 {
   sick_safevisionary_msgs::CameraIOs camera_ios;
   camera_ios.configured.pin_5 =
@@ -370,7 +370,7 @@ void SickSafeVisionaryROS::publishIOs()
   m_io_pub.publish(camera_ios);
 }
 
-void SickSafeVisionaryROS::publishROI()
+void SickSafeVisionary::publishROI()
 {
   sick_safevisionary_msgs::ROIArray roi_array_msg;
   for (auto& roi : m_last_handle.getRoiData().roiData)
@@ -405,7 +405,7 @@ void SickSafeVisionaryROS::publishROI()
   m_roi_pub.publish(roi_array_msg);
 }
 
-void SickSafeVisionaryROS::publishFieldInformation()
+void SickSafeVisionary::publishFieldInformation()
 {
   sick_safevisionary_msgs::FieldInformationArray field_array_msg;
   for (auto& field : m_last_handle.getFieldInformationData().fieldInformation)

@@ -12,8 +12,8 @@
  */
 //----------------------------------------------------------------------
 
-#ifndef SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED
-#define SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED
+#ifndef SICK_SAFEVISIONARY_DRIVER_SICK_SAFEVISIONARY_H_INCLUDED
+#define SICK_SAFEVISIONARY_DRIVER_SICK_SAFEVISIONARY_H_INCLUDED
 
 #include "image_transport/publisher.h"
 #include "sick_safevisionary_base/PointXYZ.h"
@@ -37,11 +37,11 @@
 #include <ros/ros.h>
 
 
-class SickSafeVisionaryROS
+class SickSafeVisionary
 {
 public:
-  SickSafeVisionaryROS();
-  virtual ~SickSafeVisionaryROS(){};
+  SickSafeVisionary();
+  virtual ~SickSafeVisionary(){};
   void run();
   void stop();
 
@@ -97,4 +97,4 @@ private:
     m_spsc_queue;
 };
 
-#endif /* SICK_SAFEVISIONARY_ROS_SICK_SAFE_VISIONARY_H_INCLUDED */
+#endif /* SICK_SAFEVISIONARY_DRIVER_SICK_SAFEVISIONARY_H_INCLUDED */

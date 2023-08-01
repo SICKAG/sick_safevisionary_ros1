@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(sick_safevisionary_ros)
+project(sick_safevisionary_driver)
 
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   message("${PROJECT_NAME}: You did not request a specific build type: selecting 'Release'.")
@@ -108,14 +108,12 @@ find_package(Boost REQUIRED)
 catkin_package(
   INCLUDE_DIRS
     include
-  #LIBRARIES sick_safevisionary_ros
   CATKIN_DEPENDS
     roscpp
     sensor_msgs
     image_transport
     cv_bridge
     sick_safevisionary_msgs
-#  DEPENDS system_lib
 )
 
 ###########
@@ -144,8 +142,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 
 add_executable(${PROJECT_NAME}_node
-  src/${PROJECT_NAME}_node.cpp
-  src/SickSafeVisionaryROS.cpp
+  src/driver_node.cpp
+  src/sick_safevisionary.cpp
 )
 
 ## Rename C++ executable without prefix
