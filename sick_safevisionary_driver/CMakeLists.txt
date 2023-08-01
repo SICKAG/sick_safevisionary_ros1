@@ -57,6 +57,7 @@ include_directories(
 add_executable(${PROJECT_NAME}_node
   src/driver_node.cpp
   src/sick_safevisionary.cpp
+  src/compound_publisher.cpp
 )
 
 ## Add cmake target dependencies of the executable
