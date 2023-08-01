@@ -64,37 +64,34 @@ private:
   sensor_msgs::ImagePtr Vec16ToImage(std::vector<uint16_t> vec);
   sensor_msgs::ImagePtr Vec8ToImage(std::vector<uint8_t> vec);
 
-  std::shared_ptr<visionary::SafeVisionaryData> m_data_handle;
-  visionary::SafeVisionaryData m_last_handle;
-  std::shared_ptr<visionary::SafeVisionaryDataStream> m_data_stream;
+  std::shared_ptr<visionary::SafeVisionaryData> data_handle_;
+  visionary::SafeVisionaryData last_handle_;
+  std::shared_ptr<visionary::SafeVisionaryDataStream> data_stream_;
 
-  ros::Publisher m_camera_info_pub;
-  ros::Publisher m_pointcloud_pub;
-  ros::Publisher m_imu_pub;
-  ros::Publisher m_device_status_pub;
-  ros::Publisher m_io_pub;
-  ros::Publisher m_roi_pub;
-  ros::Publisher m_field_pub;
+  ros::Publisher camera_info_pub_;
+  ros::Publisher pointcloud_pub_;
+  ros::Publisher imu_pub_;
+  ros::Publisher device_status_pub_;
+  ros::Publisher io_pub_;
+  ros::Publisher roi_pub_;
+  ros::Publisher field_pub_;
 
-  image_transport::Publisher m_depth_pub;
-  image_transport::Publisher m_intensity_pub;
-  image_transport::Publisher m_state_pub;
+  image_transport::Publisher depth_pub_;
+  image_transport::Publisher intensity_pub_;
+  image_transport::Publisher state_pub_;
 
-  ros::NodeHandle m_nh;
-  ros::NodeHandle m_priv_nh;
-  std_msgs::Header m_header;
-  std::string m_frame_id;
+  ros::NodeHandle nh_;
+  ros::NodeHandle priv_nh_;
+  std_msgs::Header header_;
+  std::string frame_id_;
 
-  std::string m_connection_type;
-  std::string m_ip;
-  int m_udp_port;
-  // TODO add tcp param
-  std::unique_ptr<std::thread> m_receive_thread_ptr;
-  std::unique_ptr<std::thread> m_publish_thread_ptr;
-  std::atomic<bool> m_data_available;
+  int udp_port_;
+  std::unique_ptr<std::thread> receive_thread_ptr_;
+  std::unique_ptr<std::thread> publish_thread_ptr_;
+  std::atomic<bool> data_available_;
 
   boost::lockfree::spsc_queue<visionary::SafeVisionaryData, boost::lockfree::capacity<10> >
-    m_spsc_queue;
+    spsc_queue_;
 };
 
 #endif /* SICK_SAFEVISIONARY_DRIVER_SICK_SAFEVISIONARY_H_INCLUDED */
