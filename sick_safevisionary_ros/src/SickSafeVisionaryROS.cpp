@@ -44,7 +44,26 @@ SickSafeVisionaryROS::SickSafeVisionaryROS()
   m_intensity_pub = image_transport.advertise("intensity", 1);
   m_state_pub     = image_transport.advertise("state", 1);
 
-  if (!m_data_stream->openUdpConnection(htons((int)m_udp_port)))
+  if (m_data_stream->openUdpConnection(htons((int)m_udp_port)))
+  {
+    ROS_INFO_STREAM("Opening UDP Connection to Sensor.");
+    bool waiting_for_connection = true;
+    while (waiting_for_connection)
+    {
+      ROS_INFO_STREAM("Waiting for camera connection.");
+      if (m_data_stream->getNextBlobUdp())
+      {
+        waiting_for_connection = false;
+        ROS_INFO_STREAM("Received first frame, starting to publish data.");
+      }
+      else
+      {
+        ROS_INFO_STREAM("No UDP packages received until now. Please make sure that your sensor is "
+                        "connected and correctly configured.");
+      }
+    }
+  }
+  else
   {
     ROS_INFO_STREAM("Could not open udp connection");
     return;
