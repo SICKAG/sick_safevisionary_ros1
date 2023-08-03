@@ -141,6 +141,12 @@ void CompoundPublisher::publishPointCloud(const std_msgs::Header& header,
   frame_data.generatePointCloud(point_vec);
   frame_data.transformPointCloud(point_vec);
 
+  if(frame_data.getIntensityMap().size() != point_vec.size())
+  {
+    ROS_INFO_STREAM("Missmatch point and intensity data.");
+    return;
+  }
+
   std::vector<uint16_t>::const_iterator intensity_it        = frame_data.getIntensityMap().begin();
   std::vector<visionary::PointXYZ>::const_iterator point_it = point_vec.begin();
   // TODO check if both vector sizes align
