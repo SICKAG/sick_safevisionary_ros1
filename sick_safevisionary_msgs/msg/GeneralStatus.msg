@@ -9,4 +9,3 @@ uint8 contamination_warning
 uint8 contamination_error
 uint8 dead_zone_detection
 uint8 temperature_warning
-
