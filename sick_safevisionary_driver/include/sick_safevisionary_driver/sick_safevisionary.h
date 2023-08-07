@@ -46,11 +46,23 @@ class SickSafeVisionary
 public:
   SickSafeVisionary();
   virtual ~SickSafeVisionary(){};
+  /*!
+   * \brief Starts the driver functionality
+   */
   void run();
+  /*!
+   * \brief Stops the driver functionality
+   */
   void stop();
 
 private:
+  /*!
+   * \brief Thread for receiving sensor data
+   */
   void receiveThread();
+  /*!
+   * \brief Thread for publishing sensor data
+   */
   void publishThread();
 
   CompoundPublisher compound_publisher_;
