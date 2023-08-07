@@ -31,7 +31,7 @@
 
 #include <sick_safevisionary_base/PointXYZ.h>
 #include <sick_safevisionary_base/SafeVisionaryData.h>
-#include <sick_safevisionary_msgs/CameraIOs.h>
+#include <sick_safevisionary_msgs/CameraIO.h>
 #include <sick_safevisionary_msgs/DeviceStatus.h>
 #include <sick_safevisionary_msgs/FieldInformationArray.h>
 #include <sick_safevisionary_msgs/ROIArray.h>

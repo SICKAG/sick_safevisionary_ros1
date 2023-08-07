@@ -13,16 +13,16 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   ActiveMonitoringCase.msg
-  CameraIOs.msg
+  CameraIO.msg
   DeviceStatus.msg
   FieldInformation.msg
   FieldInformationArray.msg
   GeneralStatus.msg
-  IOsConfigured.msg
-  IOsDirection.msg
-  IOsInputValues.msg
-  IOsOSSDSState.msg
-  IOsOutputValues.msg
+  IOConfigured.msg
+  IODirection.msg
+  IOInputValues.msg
+  IOOSSDSState.msg
+  IOOutputValues.msg
   ROI.msg
   ROIArray.msg
   ROIObservationResultData.msg

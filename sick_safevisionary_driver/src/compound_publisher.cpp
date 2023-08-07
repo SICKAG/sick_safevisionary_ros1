@@ -21,7 +21,7 @@ CompoundPublisher::CompoundPublisher()
   camera_info_pub_ = priv_nh_.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
   pointcloud_pub_  = priv_nh_.advertise<sensor_msgs::PointCloud2>("points", 1);
   imu_pub_         = priv_nh_.advertise<sensor_msgs::Imu>("imu_data", 1);
-  io_pub_          = priv_nh_.advertise<sick_safevisionary_msgs::CameraIOs>("camera_io", 1);
+  io_pub_          = priv_nh_.advertise<sick_safevisionary_msgs::CameraIO>("camera_io", 1);
   roi_pub_         = priv_nh_.advertise<sick_safevisionary_msgs::ROIArray>("region_of_interest", 1);
   field_pub_ = priv_nh_.advertise<sick_safevisionary_msgs::FieldInformationArray>("fields", 1);
   device_status_pub_ =
@@ -141,7 +141,7 @@ void CompoundPublisher::publishPointCloud(const std_msgs::Header& header,
   frame_data.generatePointCloud(point_vec);
   frame_data.transformPointCloud(point_vec);
 
-  if(frame_data.getIntensityMap().size() != point_vec.size())
+  if (frame_data.getIntensityMap().size() != point_vec.size())
   {
     ROS_INFO_STREAM("Missmatch point and intensity data.");
     return;
@@ -221,93 +221,97 @@ sensor_msgs::ImagePtr CompoundPublisher::Vec8ToImage(const std_msgs::Header& hea
 void CompoundPublisher::publishDeviceStatus(const std_msgs::Header& header,
                                             const visionary::SafeVisionaryData& frame_data)
 {
-  sick_safevisionary_msgs::DeviceStatus status;
-  status.status = static_cast<uint8_t>(frame_data.getDeviceStatus());
-  status.general_status.application_error =
+  sick_safevisionary_msgs::DeviceStatus device_status_msg;
+  device_status_msg.header = header;
+  device_status_msg.status = static_cast<uint8_t>(frame_data.getDeviceStatus());
+  device_status_msg.general_status.application_error =
     frame_data.getDeviceStatusData().generalStatus.applicationError;
-  status.general_status.contamination_error =
+  device_status_msg.general_status.contamination_error =
     frame_data.getDeviceStatusData().generalStatus.contaminationError;
-  status.general_status.contamination_warning =
+  device_status_msg.general_status.contamination_warning =
     frame_data.getDeviceStatusData().generalStatus.contaminationWarning;
-  status.general_status.dead_zone_detection =
+  device_status_msg.general_status.dead_zone_detection =
     frame_data.getDeviceStatusData().generalStatus.deadZoneDetection;
-  status.general_status.device_error = frame_data.getDeviceStatusData().generalStatus.deviceError;
-  status.general_status.temperature_warning =
+  device_status_msg.general_status.device_error =
+    frame_data.getDeviceStatusData().generalStatus.deviceError;
+  device_status_msg.general_status.temperature_warning =
     frame_data.getDeviceStatusData().generalStatus.temperatureWarning;
-  status.general_status.run_mode_active =
+  device_status_msg.general_status.run_mode_active =
     frame_data.getDeviceStatusData().generalStatus.runModeActive;
-  status.general_status.wait_for_cluster =
+  device_status_msg.general_status.wait_for_cluster =
     frame_data.getDeviceStatusData().generalStatus.waitForCluster;
-  status.general_status.wait_for_input =
+  device_status_msg.general_status.wait_for_input =
     frame_data.getDeviceStatusData().generalStatus.waitForInput;
-  status.COP_non_safety_related = frame_data.getDeviceStatusData().COPNonSaftyRelated;
-  status.COP_safety_related     = frame_data.getDeviceStatusData().COPSaftyRelated;
-  status.COP_reset_required     = frame_data.getDeviceStatusData().COPResetRequired;
-  status.active_monitoring_case.monitoring_case_1 =
+  device_status_msg.COP_non_safety_related = frame_data.getDeviceStatusData().COPNonSaftyRelated;
+  device_status_msg.COP_safety_related     = frame_data.getDeviceStatusData().COPSaftyRelated;
+  device_status_msg.COP_reset_required     = frame_data.getDeviceStatusData().COPResetRequired;
+  device_status_msg.active_monitoring_case.monitoring_case_1 =
     frame_data.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase1;
-  status.active_monitoring_case.monitoring_case_2 =
+  device_status_msg.active_monitoring_case.monitoring_case_2 =
     frame_data.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase2;
-  status.active_monitoring_case.monitoring_case_3 =
+  device_status_msg.active_monitoring_case.monitoring_case_3 =
     frame_data.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase3;
-  status.active_monitoring_case.monitoring_case_4 =
+  device_status_msg.active_monitoring_case.monitoring_case_4 =
     frame_data.getDeviceStatusData().activeMonitoringCase.currentCaseNumberMonitoringCase4;
-  status.contamination_level = frame_data.getDeviceStatusData().contaminationLevel;
-  device_status_pub_.publish(status);
+  device_status_msg.contamination_level = frame_data.getDeviceStatusData().contaminationLevel;
+  device_status_pub_.publish(device_status_msg);
 }
 
 void CompoundPublisher::publishIOs(const std_msgs::Header& header,
                                    const visionary::SafeVisionaryData& frame_data)
 {
-  sick_safevisionary_msgs::CameraIOs camera_ios;
-  camera_ios.configured.pin_5 =
+  sick_safevisionary_msgs::CameraIO camera_io_msg;
+  camera_io_msg.header = header;
+  camera_io_msg.configured.pin_5 =
     frame_data.getLocalIOData().universalIOConfigured.configuredUniIOPin5;
-  camera_ios.configured.pin_6 =
+  camera_io_msg.configured.pin_6 =
     frame_data.getLocalIOData().universalIOConfigured.configuredUniIOPin6;
-  camera_ios.configured.pin_7 =
+  camera_io_msg.configured.pin_7 =
     frame_data.getLocalIOData().universalIOConfigured.configuredUniIOPin7;
-  camera_ios.configured.pin_8 =
+  camera_io_msg.configured.pin_8 =
     frame_data.getLocalIOData().universalIOConfigured.configuredUniIOPin8;
-  camera_ios.direction.pin_5 =
+  camera_io_msg.direction.pin_5 =
     frame_data.getLocalIOData().universalIODirection.directionValueUniIOPin5;
-  camera_ios.direction.pin_6 =
+  camera_io_msg.direction.pin_6 =
     frame_data.getLocalIOData().universalIODirection.directionValueUniIOPin6;
-  camera_ios.direction.pin_7 =
+  camera_io_msg.direction.pin_7 =
     frame_data.getLocalIOData().universalIODirection.directionValueUniIOPin7;
-  camera_ios.direction.pin_8 =
+  camera_io_msg.direction.pin_8 =
     frame_data.getLocalIOData().universalIODirection.directionValueUniIOPin8;
-  camera_ios.input_values.pin_5 =
+  camera_io_msg.input_values.pin_5 =
     frame_data.getLocalIOData().universalIOInputValue.logicalValueUniIOPin5;
-  camera_ios.input_values.pin_6 =
+  camera_io_msg.input_values.pin_6 =
     frame_data.getLocalIOData().universalIOInputValue.logicalValueUniIOPin6;
-  camera_ios.input_values.pin_7 =
+  camera_io_msg.input_values.pin_7 =
     frame_data.getLocalIOData().universalIOInputValue.logicalValueUniIOPin7;
-  camera_ios.input_values.pin_8 =
+  camera_io_msg.input_values.pin_8 =
     frame_data.getLocalIOData().universalIOInputValue.logicalValueUniIOPin8;
-  camera_ios.output_values.pin_5 =
+  camera_io_msg.output_values.pin_5 =
     frame_data.getLocalIOData().universalIOOutputValue.localOutput1Pin5;
-  camera_ios.output_values.pin_6 =
+  camera_io_msg.output_values.pin_6 =
     frame_data.getLocalIOData().universalIOOutputValue.localOutput2Pin6;
-  camera_ios.output_values.pin_7 =
+  camera_io_msg.output_values.pin_7 =
     frame_data.getLocalIOData().universalIOOutputValue.localOutput3Pin7;
-  camera_ios.output_values.pin_8 =
+  camera_io_msg.output_values.pin_8 =
     frame_data.getLocalIOData().universalIOOutputValue.localOutput4Pin8;
-  camera_ios.ossds_state.OSSD1A  = frame_data.getLocalIOData().ossdsState.stateOSSD1A;
-  camera_ios.ossds_state.OSSD1B  = frame_data.getLocalIOData().ossdsState.stateOSSD1B;
-  camera_ios.ossds_state.OSSD2A  = frame_data.getLocalIOData().ossdsState.stateOSSD2A;
-  camera_ios.ossds_state.OSSD2B  = frame_data.getLocalIOData().ossdsState.stateOSSD2B;
-  camera_ios.ossds_dyn_count     = frame_data.getLocalIOData().ossdsDynCount;
-  camera_ios.ossds_crc           = frame_data.getLocalIOData().ossdsCRC;
-  camera_ios.ossds_io_status     = frame_data.getLocalIOData().ossdsIOStatus;
-  camera_ios.dynamic_speed_a     = frame_data.getLocalIOData().dynamicSpeedA;
-  camera_ios.dynamic_speed_b     = frame_data.getLocalIOData().dynamicSpeedB;
-  camera_ios.dynamic_valid_flags = frame_data.getLocalIOData().DynamicValidFlags;
-  io_pub_.publish(camera_ios);
+  camera_io_msg.ossds_state.OSSD1A  = frame_data.getLocalIOData().ossdsState.stateOSSD1A;
+  camera_io_msg.ossds_state.OSSD1B  = frame_data.getLocalIOData().ossdsState.stateOSSD1B;
+  camera_io_msg.ossds_state.OSSD2A  = frame_data.getLocalIOData().ossdsState.stateOSSD2A;
+  camera_io_msg.ossds_state.OSSD2B  = frame_data.getLocalIOData().ossdsState.stateOSSD2B;
+  camera_io_msg.ossds_dyn_count     = frame_data.getLocalIOData().ossdsDynCount;
+  camera_io_msg.ossds_crc           = frame_data.getLocalIOData().ossdsCRC;
+  camera_io_msg.ossds_io_status     = frame_data.getLocalIOData().ossdsIOStatus;
+  camera_io_msg.dynamic_speed_a     = frame_data.getLocalIOData().dynamicSpeedA;
+  camera_io_msg.dynamic_speed_b     = frame_data.getLocalIOData().dynamicSpeedB;
+  camera_io_msg.dynamic_valid_flags = frame_data.getLocalIOData().DynamicValidFlags;
+  io_pub_.publish(camera_io_msg);
 }
 
 void CompoundPublisher::publishROI(const std_msgs::Header& header,
                                    const visionary::SafeVisionaryData& frame_data)
 {
   sick_safevisionary_msgs::ROIArray roi_array_msg;
+  roi_array_msg.header = header;
   for (auto& roi : frame_data.getRoiData().roiData)
   {
     sick_safevisionary_msgs::ROI roi_msg;
@@ -344,6 +348,7 @@ void CompoundPublisher::publishFieldInformation(const std_msgs::Header& header,
                                                 const visionary::SafeVisionaryData& frame_data)
 {
   sick_safevisionary_msgs::FieldInformationArray field_array_msg;
+  field_array_msg.header = header;
   for (auto& field : frame_data.getFieldInformationData().fieldInformation)
   {
     sick_safevisionary_msgs::FieldInformation field_msg;

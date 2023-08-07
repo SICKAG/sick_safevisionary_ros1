@@ -1,9 +1,10 @@
 # ROS msg definition for internal  LOCALIOS_ELEMENT struct
-IOsConfigured configured
-IOsDirection direction
-IOsInputValues input_values
-IOsOutputValues output_values
-IOsOSSDSState ossds_state
+std_msgs/Header header
+IOConfigured configured
+IODirection direction
+IOInputValues input_values
+IOOutputValues output_values
+IOOSSDSState ossds_state
 uint8 ossds_dyn_count
 uint8 ossds_crc
 uint8 ossds_io_status
