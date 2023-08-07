@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>sick_safevisionary_driver</name>
-  <version>0.0.0</version>
-  <description>The sick_safevisionary_driver package</description>
+  <version>1.0.0</version>
+  <description>Provides an interface to read the sensor output of a SICK Safevisionary sensor in ROS.</description>
 
-  <maintainer email="grosse@todo.todo">grosse</maintainer>
+  <maintainer email="grosse@fzi.de">Marvin Grosse Besselmann</maintainer>
+  <maintainer email="scherzin@fzi.de">Stefan Scherzinger</maintainer>
 
-  <license>TODO</license>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -18,9 +19,7 @@
   <depend>sick_safevisionary_msgs</depend>
 
 
-  <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <!-- Other tools can request additional information be placed here -->
 
   </export>
 </package>

@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>sick_safevisionary_msgs</name>
-  <version>0.0.0</version>
-  <description>The sick_safevisionary_msgs package</description>
+  <version>1.0.0</version>
+  <description>Provides the interface descriptions to communicate with a SICk Safevisionary Sensor over ROS</description>
 
-  <maintainer email="grosse@todo.todo">grosse</maintainer>
+  <maintainer email="grosse@fzi.de">Marvin Grosse Besselmann</maintainer>
+  <maintainer email="scherzin@fzi.de">Stefan Scherzinger</maintainer>
 
 
-  <license>TODO</license>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
