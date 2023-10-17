@@ -57,6 +57,7 @@ previous calls to `catkin_make`.
 
 
 ## Getting started
+Each camera must be configured once. The setup is explained [here](https://github.com/SICKAG/sick_safevisionary_base/blob/main/resources/doc/safety_designer.md).
 Source your local `install/setup.bash` and run
 ```bash
 roslaunch sick_safevisionary_driver driver_node.launch
