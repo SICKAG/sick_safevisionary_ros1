@@ -2,8 +2,8 @@
 Changelog for package sick_safevisionary_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2023-10-17)
+------------------
 * Add a minimal readme to the driver package
 * Added doxygen comments
 * Added licensing and maintainer infos

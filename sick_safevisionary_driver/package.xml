@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>sick_safevisionary_driver</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>Provides an interface to read the sensor output of a SICK Safevisionary sensor in ROS.</description>
 
   <maintainer email="grosse@fzi.de">Marvin Grosse Besselmann</maintainer>

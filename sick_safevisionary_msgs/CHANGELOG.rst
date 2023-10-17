@@ -2,8 +2,8 @@
 Changelog for package sick_safevisionary_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2023-10-17)
+------------------
 * Add a minimal readme to the messages package
 * Added pre-commit config and removed eof whitespaces
 * Added licensing and maintainer infos
